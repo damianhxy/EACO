@@ -109,8 +109,13 @@ public class Graph {
             articulation_point.add(false);
         }
         dfs_parent.set(source, -1);
-        // Graph guaranteed to be connected
         DFS(source);
+        for (int a = 0; a < numNodes; ++a) {
+            if (dfs_num.get(a) == -1) {
+                dfs_parent.set(a, -1);
+                DFS(a);
+            }
+        }
         articulation_point.set(source, rootChildren > 1);
         int cnt = 0;
         for (int a = 0; a < numNodes; ++a) {

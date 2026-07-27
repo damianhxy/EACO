@@ -30,6 +30,7 @@ public class ParametricModel {
      */
     private double squash(double X) throws IllegalArgumentException {
         if (X > 1) throw new IllegalArgumentException();
+        if (N == 0) return 0;
         return (1 + Math.exp(a / N)) / (1 + Math.exp(a / (X * N)));
     }
 
@@ -46,8 +47,9 @@ public class ParametricModel {
         if (μ == 0) {
             μ = T;
         } else {
+            double old_μ = μ;
             μ = μ + η * (T - μ);
-            σ2 = σ2 + η * ((T - μ) * (T - μ) - σ2);
+            σ2 = σ2 + η * ((T - old_μ) * (T - old_μ) - σ2);
         }
         if (++windowCount > w) {
             windowCount = 1;

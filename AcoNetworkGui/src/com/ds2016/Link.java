@@ -3,7 +3,8 @@ package com.ds2016;
 import com.ds2016.listeners.GuiEventListener;
 import com.ds2016.ui.Gui;
 import com.ds2016.ui.ParameterStorage;
-import com.sun.corba.se.impl.orbutil.concurrent.Mutex;
+
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by zwliew on 4/7/16.
@@ -15,9 +16,9 @@ public class Link implements GuiEventListener {
     private static final int ALGO_OSPF = 0;
     private static final int ALGO_ANTNET = 1;
     private static final int ALGO_EACO = 2;
-    public static AlgorithmBase sAlgorithm; // TODO
-    public static int sThroughput; // TODO
-    private final Mutex mMutex = new Mutex();
+    public static volatile AlgorithmBase sAlgorithm;
+    public static volatile int sThroughput;
+    private final ReentrantLock mMutex = new ReentrantLock();
     private Gui mGui;
     private ParameterStorage mParams;
     private Thread mThread;
@@ -36,22 +37,20 @@ public class Link implements GuiEventListener {
 
         mRunnable = () -> {
             while (!Thread.currentThread().isInterrupted()) {
+                mMutex.lock();
                 try {
-                    mMutex.acquire();
-                    try {
-                        tick();
-                        mGui.tick();
-                        if (sAlgorithm.getCurrentTime() >= mParams.getNumTicks()
-                                && mParams.getNumTicks() > 0) {
-                            stop();
-                        }
-                    } finally {
-                        mMutex.release();
+                    tick();
+                    mGui.tick();
+                    if (sAlgorithm.getCurrentTime() >= mParams.getNumTicks()
+                            && mParams.getNumTicks() > 0) {
+                        stop();
                     }
+                } finally {
+                    mMutex.unlock();
+                }
+                try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
-                    // This exception is expected, swallow it.
-                    //e.printStackTrace();
                     Thread.currentThread().interrupt();
                 }
             }
@@ -63,28 +62,20 @@ public class Link implements GuiEventListener {
     }
 
     private void addNode() {
+        mMutex.lock();
         try {
-            mMutex.acquire();
-            try {
-                sAlgorithm.addNode();
-            } finally {
-                mMutex.release();
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            sAlgorithm.addNode();
+        } finally {
+            mMutex.unlock();
         }
     }
 
     private void toggleNode(final int id) {
+        mMutex.lock();
         try {
-            mMutex.acquire();
-            try {
-                sAlgorithm.toggleNode(id);
-            } finally {
-                mMutex.release();
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            sAlgorithm.toggleNode(id);
+        } finally {
+            mMutex.unlock();
         }
     }
 
@@ -92,28 +83,20 @@ public class Link implements GuiEventListener {
                          final int destination,
                          final int cost,
                          final int bandwidth) {
+        mMutex.lock();
         try {
-            mMutex.acquire();
-            try {
-                sAlgorithm.addEdge(source, destination, cost, bandwidth);
-            } finally {
-                mMutex.release();
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            sAlgorithm.addEdge(source, destination, cost, bandwidth);
+        } finally {
+            mMutex.unlock();
         }
     }
 
     private void toggleEdge(final int id) {
+        mMutex.lock();
         try {
-            mMutex.acquire();
-            try {
-                sAlgorithm.toggleEdge(id);
-            } finally {
-                mMutex.release();
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            sAlgorithm.toggleEdge(id);
+        } finally {
+            mMutex.unlock();
         }
     }
 
@@ -151,18 +134,23 @@ public class Link implements GuiEventListener {
         final int traffic = params.getTraffic();
         final int algorithm = mParams.getAlgorithm();
 
-        switch (algorithm) {
-            case ALGO_OSPF:
-                sAlgorithm = new OSPF(Main.TTL_MS, traffic);
-                break;
-            case ALGO_ANTNET:
-                sAlgorithm = new AntNet(alpha, traffic, Main.TTL_MS, interval);
-                break;
-            case ALGO_EACO:
-                sAlgorithm = new EACO(alpha, traffic, Main.TTL_MS, interval);
-                break;
+        mMutex.lock();
+        try {
+            switch (algorithm) {
+                case ALGO_OSPF:
+                    sAlgorithm = new OSPF(Main.TTL_MS, traffic);
+                    break;
+                case ALGO_ANTNET:
+                    sAlgorithm = new AntNet(alpha, traffic, Main.TTL_MS, interval);
+                    break;
+                case ALGO_EACO:
+                    sAlgorithm = new EACO(alpha, traffic, Main.TTL_MS, interval);
+                    break;
+            }
+            sAlgorithm.build(mGui.mNodeList, mGui.mEdgeList, source, destination);
+        } finally {
+            mMutex.unlock();
         }
-        sAlgorithm.build(mGui.mNodeList, mGui.mEdgeList, source, destination);
     }
 
     @Override

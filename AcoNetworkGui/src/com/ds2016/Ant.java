@@ -65,6 +65,7 @@ class Ant extends Packet {
      * @return The next node
      */
     int nextNode() {
+        if (path.size() < 2) return -1;
         return path.get(path.size() - 2);
     }
 
@@ -73,6 +74,7 @@ class Ant extends Packet {
      * current node to destination
      */
     void updateTotalTime() {
+        if (timings.size() < 2) return;
         totalTime += timings.get(timings.size() - 1);
         timings.remove(timings.size() - 1);
         totalTime += timings.get(timings.size() - 1);
