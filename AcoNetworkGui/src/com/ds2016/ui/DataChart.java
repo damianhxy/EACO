@@ -175,7 +175,7 @@ class DataChart implements GuiEventListener {
         mNumNodes++;
     }
 
-    void toggleNode(final int nodeId, final boolean isOffline) {
+    void toggleNode(final boolean isOffline) {
         mNumNodes += isOffline ? -1 : 1;
     }
 
