@@ -108,10 +108,13 @@ public class AntNet implements AlgorithmBase {
                 edge.clearAntQ();
             }
         }
-        if (didInit)
-            for (Edge_ACO edge : adjMat.get(ID).values()) {
-                nodes.get(edge.destination).toggleNode(ID);
-            }
+        if (didInit) {
+            HashMap<Integer, Edge_ACO> adj = adjMat.get(ID);
+            if (adj != null)
+                for (Edge_ACO edge : adj.values()) {
+                    nodes.get(edge.destination).toggleNode(ID);
+                }
+        }
     }
 
     /**

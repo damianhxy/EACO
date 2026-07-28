@@ -44,13 +44,15 @@ public class Node_AntNet {
      * Build pheromone table
      */
     void init() {
-        for (Edge_ACO edge : adjMat.get(ID).values()) {
+        HashMap<Integer, Edge_ACO> adj = adjMat.get(ID);
+        if (adj == null) return;
+        for (Edge_ACO edge : adj.values()) {
             if (!edge.isOffline && !nodes.get(edge.destination).isOffline)
                 ++numNeighbours;
         }
         for (int a = 0; a < nodes.size(); ++a) { // For each destination
             if (a == ID) continue;
-            for (Edge_ACO edge : adjMat.get(ID).values()) { // For each neighbour
+            for (Edge_ACO edge : adj.values()) { // For each neighbour
                 if (edge.isOffline || nodes.get(edge.destination).isOffline) continue;
                 addHeuristic(edge.destination, a);
             }

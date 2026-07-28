@@ -46,11 +46,13 @@ class GraphAlgo extends SinkAdapter implements DynamicAlgorithm {
         }
         int loadTotal = temp;
         int edgeCount = edgeLoadList.size();
-        mEdgeLoadMean = loadTotal / edgeCount;
+        mEdgeLoadMean = edgeCount > 0 ? loadTotal / edgeCount : 0;
 
         for (int i = 0; i < edgeCount; i++) {
-            Edge edge = graph.getEdge(i);
-            setEdgeColor(edge, edgeLoadList.get(i));
+            Edge forward = graph.getEdge(i + "f");
+            Edge backward = graph.getEdge(i + "b");
+            setEdgeColor(forward, edgeLoadList.get(i));
+            setEdgeColor(backward, edgeLoadList.get(i));
         }
 
         temp = 0;
@@ -60,7 +62,7 @@ class GraphAlgo extends SinkAdapter implements DynamicAlgorithm {
         }
         loadTotal = temp;
         final int nodeCount = nodeLoadlist.size();
-        mNodeLoadMean = loadTotal / nodeCount;
+        mNodeLoadMean = nodeCount > 0 ? loadTotal / nodeCount : 0;
 
         for (int i = 0; i < nodeCount; i++) {
             Node node = graph.getNode(i);
@@ -72,7 +74,9 @@ class GraphAlgo extends SinkAdapter implements DynamicAlgorithm {
 
     private void setEdgeColor(final Edge edge, final int curLoad) {
         String loadLv;
-        if (curLoad >= Main.HIGH_LOAD_FACTOR * mEdgeLoadMean) {
+        if (mEdgeLoadMean == 0) {
+            loadLv = curLoad > 0 ? "minimalLoad" : "noLoad";
+        } else if (curLoad >= Main.HIGH_LOAD_FACTOR * mEdgeLoadMean) {
             loadLv = "highLoad";
         } else if (curLoad >= Main.MED_LOAD_FACTOR * mEdgeLoadMean) {
             loadLv = "midLoad";

@@ -49,16 +49,18 @@ public class Node_EACO {
      */
     void init() {
         initDSU();
+        HashMap<Integer, Edge_ACO> adj = adjMat.get(ID);
+        if (adj == null) return;
         for (int a = 0; a < nodes.size(); ++a) { // For each destination
             numViableNeighbours.add(0);
             if (a == ID) continue;
             int numNeighbours = 0; // Number of viable neighbours
-            for (Edge_ACO edge : adjMat.get(ID).values()) {
+            for (Edge_ACO edge : adj.values()) {
                 if (edge.isOffline || nodes.get(edge.destination).isOffline) continue;
                 if (DSU.sameSet(edge.destination, a)) ++numNeighbours;
             }
             numViableNeighbours.set(a, numNeighbours);
-            for (Edge_ACO edge : adjMat.get(ID).values()) { // For each neighbour
+            for (Edge_ACO edge : adj.values()) { // For each neighbour
                 if (edge.isOffline || nodes.get(edge.destination).isOffline) continue;
                 if (!DSU.sameSet(edge.destination, a)) continue;
                 addHeuristic(edge.destination, a);
@@ -90,7 +92,8 @@ public class Node_EACO {
             initDSU();
         } else {
             // Merge edges
-            for (Edge_ACO edge : adjMat.get(ID).values()) {
+            HashMap<Integer, Edge_ACO> adj = adjMat.get(ID);
+            if (adj != null) for (Edge_ACO edge : adj.values()) {
                 if (edge.source == this.ID || edge.destination == this.ID) continue;
                 if (nodes.get(edge.destination).isOffline) continue; // edge.source not offline
                 if (edge.isOffline) continue;
@@ -173,7 +176,9 @@ public class Node_EACO {
         while (numViableNeighbours.size() < nodes.size()) {
             numViableNeighbours.add(0);
         }
-        for (Edge_ACO edge : adjMat.get(ID).values()) {
+        HashMap<Integer, Edge_ACO> adj = adjMat.get(ID);
+        if (adj == null) return;
+        for (Edge_ACO edge : adj.values()) {
             for (int dest = 0; dest < nodes.size(); ++dest) {
                 if (dest == ID) continue;
                 int neighbour = edge.destination;

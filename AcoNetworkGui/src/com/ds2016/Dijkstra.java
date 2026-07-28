@@ -4,6 +4,7 @@ import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.PriorityQueue;
 
 /**
@@ -34,7 +35,8 @@ public class Dijkstra {
         }
         D.set(source, 0);
         // Add neighbours
-        for (Edge edge : adjMat.get(source).values()) {
+        HashMap<Integer, Edge> adj = adjMat.get(source);
+        if (adj != null) for (Edge edge : adj.values()) {
             D.set(edge.destination, edge.cost);
             P.get(edge.destination).add(edge.destination);
             PQ.add(new Pair<>(edge.destination, edge.cost));
@@ -43,7 +45,9 @@ public class Dijkstra {
         while (!PQ.isEmpty()) {
             Pair<Integer, Integer> top = PQ.poll();
             if (!D.get(top.getKey()).equals(top.getValue())) continue;
-            for (Edge edge : adjMat.get(top.getKey()).values()) {
+            HashMap<Integer, Edge> adj2 = adjMat.get(top.getKey());
+            if (adj2 == null) continue;
+            for (Edge edge : adj2.values()) {
                 if (edge.isOffline) continue;
                 if (nodes.get(edge.destination).isOffline) continue;
                 int nc = top.getValue() + edge.cost;

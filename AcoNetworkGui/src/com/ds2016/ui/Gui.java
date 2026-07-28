@@ -141,7 +141,7 @@ public class Gui implements GraphEventListener, NetworkEventListener {
             final int nodeId = Integer.parseInt(mToggleNodeField.getText());
             toggleNode(nodeId);
             mListener.onNodeToggled(nodeId);
-            mDataChart.toggleNode(mNodeList.get(nodeId).isOffline);
+            mDataChart.toggleNode(nodeId, mNodeList.get(nodeId).isOffline);
         });
 
         /*

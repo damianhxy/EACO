@@ -156,7 +156,7 @@ class DataChart implements GuiEventListener {
         mLoggedMax = false;
         mThroughputSeries.clear();
         mThroughputSeries.add(0, 0);
-        for (int node = 0; node < mNumNodes; node++) {
+        for (int node = 0; node < mModelList.size(); node++) {
             final TableModel model = mModelList.get(node);
             model.resetData();
         }
@@ -175,7 +175,7 @@ class DataChart implements GuiEventListener {
         mNumNodes++;
     }
 
-    void toggleNode(final boolean isOffline) {
+    void toggleNode(final int nodeId, final boolean isOffline) {
         mNumNodes += isOffline ? -1 : 1;
     }
 
