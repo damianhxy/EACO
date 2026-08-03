@@ -165,7 +165,16 @@ public class Link implements GuiEventListener {
 
     @Override
     public void onTick() {
-        tick();
+        // Manual ticks only make sense while the simulation is paused;
+        // otherwise the algo thread is already ticking.
+        if (mStarted) return;
+        mMutex.lock();
+        try {
+            tick();
+            mGui.tick();
+        } finally {
+            mMutex.unlock();
+        }
     }
 
     @Override

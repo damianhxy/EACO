@@ -188,10 +188,7 @@ public class Gui implements GraphEventListener, NetworkEventListener {
           Undergo one tick of the entire program (mGraph + algorithm)
          */
         mTickBtn = new JButton();
-        mTickBtn.addActionListener(actionEvent -> {
-            tick();
-            mListener.onTick();
-        });
+        mTickBtn.addActionListener(actionEvent -> mListener.onTick());
     }
 
     public void tick() {
