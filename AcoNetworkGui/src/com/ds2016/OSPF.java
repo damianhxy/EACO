@@ -79,6 +79,7 @@ public class OSPF implements AlgorithmBase {
      */
     public void addNode() {
         nodes.add(new Node_OSPF(nodes, adjMat));
+        nodes.get(nodes.size() - 1).update();
     }
 
     /**

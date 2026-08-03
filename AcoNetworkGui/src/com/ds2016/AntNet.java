@@ -85,6 +85,7 @@ public class AntNet implements AlgorithmBase {
      */
     public void addNode() {
         nodes.add(new Node_AntNet(nodes, adjMat, alpha));
+        nodes.get(nodes.size() - 1).init();
     }
 
     /**

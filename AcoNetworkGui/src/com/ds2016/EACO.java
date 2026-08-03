@@ -85,6 +85,7 @@ public class EACO implements AlgorithmBase {
      */
     public void addNode() {
         nodes.add(new Node_EACO(nodes, edgeList, adjMat, alpha));
+        nodes.get(nodes.size() - 1).init();
     }
 
     /**
