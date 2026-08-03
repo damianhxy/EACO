@@ -37,6 +37,8 @@ public class Dijkstra {
         // Add neighbours
         HashMap<Integer, Edge> adj = adjMat.get(source);
         if (adj != null) for (Edge edge : adj.values()) {
+            if (edge.isOffline) continue;
+            if (nodes.get(edge.destination).isOffline) continue;
             D.set(edge.destination, edge.cost);
             P.get(edge.destination).add(edge.destination);
             PQ.add(new Pair<>(edge.destination, edge.cost));
