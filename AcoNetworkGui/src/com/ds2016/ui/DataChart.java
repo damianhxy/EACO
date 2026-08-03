@@ -24,7 +24,6 @@ class DataChart implements GuiEventListener {
 
     private JTabbedPane mTabbedPane;
     private XYSeries mThroughputSeries;
-    private int mNumNodes;
 
     private java.util.List<TableModel> mModelList = new ArrayList<>();
 
@@ -66,7 +65,7 @@ class DataChart implements GuiEventListener {
     }
 
     private void updatePheromoneTables() {
-        for (int i = 0; i < mNumNodes; i++) {
+        for (int i = 0; i < mModelList.size(); i++) {
             int row = 1;
             final TableModel model = mModelList.get(i);
             if (Link.sAlgorithm instanceof EACO) {
@@ -167,16 +166,11 @@ class DataChart implements GuiEventListener {
         if (!Main.DISPLAY_PHEROMONE) {
             return;
         }
-        final TableModel model = new TableModel(mNumNodes);
+        final TableModel model = new TableModel(mModelList.size());
         mModelList.add(model);
         final JTable table = new JTable(model);
         table.getTableHeader().setReorderingAllowed(false);
-        mTabbedPane.add("Node " + String.valueOf(mNumNodes), new JScrollPane(table));
-        mNumNodes++;
-    }
-
-    void toggleNode(final boolean isOffline) {
-        mNumNodes += isOffline ? -1 : 1;
+        mTabbedPane.add("Node " + mModelList.size(), new JScrollPane(table));
     }
 
     @Override
