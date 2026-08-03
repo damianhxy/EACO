@@ -67,16 +67,20 @@ public class Node_AntNet {
      */
     void toggleNode(int ID) {
         if (nodes.get(ID).isOffline) {
-            --numNeighbours;
+            boolean removed = false;
             for (int a = 0; a < nodes.size(); ++a) {
-                if (a == ID) continue;
-                removeHeuristic(ID, a);
+                if (a == this.ID) continue;
+                removed |= removeHeuristic(ID, a);
             }
+            if (removed) --numNeighbours;
         } else {
-            ++numNeighbours;
-            for (int a = 0; a < nodes.size(); ++a) {
-                if (a == ID) continue;
-                updateHeuristic(ID, a, 1. / numNeighbours);
+            Edge_ACO edge = adjMat.get(ID, this.ID);
+            if (edge != null && !edge.isOffline) {
+                ++numNeighbours;
+                for (int a = 0; a < nodes.size(); ++a) {
+                    if (a == this.ID) continue;
+                    updateHeuristic(ID, a, 1. / numNeighbours);
+                }
             }
         }
     }
@@ -101,12 +105,14 @@ public class Node_AntNet {
      */
     void toggleEdge(int node) {
         if (adjMat.get(ID, node).isOffline) {
-            --numNeighbours;
+            boolean removed = false;
             for (int a = 0; a < nodes.size(); ++a) {
                 if (a == ID) continue;
-                removeHeuristic(node, a);
+                removed |= removeHeuristic(node, a);
             }
+            if (removed) --numNeighbours;
         } else {
+            if (nodes.get(node).isOffline) return;
             ++numNeighbours;
             for (int a = 0; a < nodes.size(); ++a) {
                 if (a == ID) continue;
@@ -368,15 +374,16 @@ public class Node_AntNet {
     }
 
     /**
-     * Remove pheromone from a node that is
-     * no longer a neighbour
+     * Remove a neighbour from consideration
+     * as it is not viable now
      *
      * @param neighbour   Node ID
      * @param destination Destination ID
+     * @return True if the pheromone entry existed and was removed
      */
-    private void removeHeuristic(int neighbour, int destination) {
+    private boolean removeHeuristic(int neighbour, int destination) {
         Double amount = pheromone.get(destination, neighbour);
-        if (amount == null) return;
+        if (amount == null) return false;
         pheromone.put(destination, neighbour, null);
         /* Decrease proportionally */
         for (Edge_ACO edge : adjMat.get(ID).values()) {
@@ -387,6 +394,7 @@ public class Node_AntNet {
             }
         }
         updateRouting(destination);
+        return true;
     }
 
     /**
