@@ -376,6 +376,7 @@ public class Node_AntNet {
      */
     private void removeHeuristic(int neighbour, int destination) {
         Double amount = pheromone.get(destination, neighbour);
+        if (amount == null) return;
         pheromone.put(destination, neighbour, null);
         /* Decrease proportionally */
         for (Edge_ACO edge : adjMat.get(ID).values()) {

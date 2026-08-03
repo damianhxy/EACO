@@ -63,6 +63,9 @@ public class Node_OSPF {
             return 1;
         }
         int nxt = nextHop(packet);
+        if (nxt < 0) {
+            return 0; // No route; drop packet
+        }
         Q.putIfAbsent(nxt, new ArrayDeque<>());
         Q.get(nxt).add(packet);
         return 0;
