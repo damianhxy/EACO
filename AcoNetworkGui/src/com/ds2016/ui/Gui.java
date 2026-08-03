@@ -209,6 +209,13 @@ public class Gui implements GraphEventListener, NetworkEventListener {
         colouriseNodes(mSourceNode, mDestinationNode);
         mListener.onUpdate(params);
         mDataChart.onUpdate(params);
+    }
+
+    /**
+     * Reset the charts. Reads the current algorithm's state, so this is
+     * invoked by Link under the simulation lock.
+     */
+    public void resetCharts() {
         mDataChart.resetCharts();
     }
 
