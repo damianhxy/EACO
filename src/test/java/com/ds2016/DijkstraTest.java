@@ -54,4 +54,25 @@ class DijkstraTest {
         final Dijkstra d = new Dijkstra(0, nodes(4), adjMat(new int[][]{{0, 1, 5, 1}, {1, 2, 5, 1}}));
         assertEquals(-1, d.next(3));
     }
+
+    @Test
+    void ignoresOfflineNeighboursOfSource() {
+        // Edge 0-1 is offline; node 1 must be reached via node 2, never
+        // through the down link.
+        final HashMap2D<Integer, Integer, Edge> adj = new HashMap2D<>();
+        final Edge offline = new Edge(0, 1, 1, 1);
+        offline.toggle();
+        adj.put(0, 1, offline);
+        final Edge offBack = new Edge(1, 0, 1, 1);
+        offBack.toggle();
+        adj.put(1, 0, offBack);
+        adj.put(0, 2, new Edge(0, 2, 1, 1));
+        adj.put(2, 0, new Edge(2, 0, 1, 1));
+        adj.put(1, 2, new Edge(1, 2, 1, 1));
+        adj.put(2, 1, new Edge(2, 1, 1, 1));
+
+        final Dijkstra d = new Dijkstra(0, nodes(3), adj);
+        assertEquals(List.of(2), d.P.get(1));
+        assertEquals(List.of(2), d.P.get(2));
+    }
 }
