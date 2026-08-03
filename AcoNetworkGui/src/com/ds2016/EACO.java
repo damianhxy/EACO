@@ -85,6 +85,13 @@ public class EACO implements AlgorithmBase {
      */
     public void addNode() {
         nodes.add(new Node_EACO(nodes, edgeList, adjMat, alpha));
+        if (didInit) {
+            // Existing nodes' DSUs were built at the old node count; rebuild
+            // them at the new size without disturbing their pheromone tables.
+            for (Node_EACO node : nodes) {
+                node.initDSU();
+            }
+        }
         nodes.get(nodes.size() - 1).init();
     }
 
