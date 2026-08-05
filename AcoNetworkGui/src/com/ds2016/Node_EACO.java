@@ -238,6 +238,9 @@ public class Node_EACO {
         Double cur = pheromone.get(destination, neighbour);
         if (cur == null) cur = 0.;
         double maxChange = (TMAX - cur) / (1. - cur);
+        if (Double.isInfinite(maxChange) || Double.isNaN(maxChange)) {
+            maxChange = 0; // cur is already at (or beyond) the cap
+        }
         change = Math.min(change, maxChange);
         cur = cur * (1 - change) + change;
         pheromone.put(destination, neighbour, cur);
