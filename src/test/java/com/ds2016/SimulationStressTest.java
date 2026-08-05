@@ -32,12 +32,12 @@ class SimulationStressTest {
 
     @Test
     void eacoSurvivesThirtyThousandTicks() {
-        assertDoesNotThrow(() -> stress(new EACO(0.4, 1, 15000, 100.0)));
+        assertDoesNotThrow(() -> stress(new EACO(0.4, 1, 15000, 0.1)));
     }
 
     @Test
     void antNetSurvivesThirtyThousandTicks() {
-        assertDoesNotThrow(() -> stress(new AntNet(0.4, 1, 15000, 100.0)));
+        assertDoesNotThrow(() -> stress(new AntNet(0.4, 1, 15000, 0.1)));
     }
 
     @Test

@@ -32,7 +32,7 @@ class AddNodeTest {
 
     @Test
     void antNetSurvivesMidRunNodeAddition() {
-        final AntNet algo = new AntNet(0.4, 1, 15000, 100.0);
+        final AntNet algo = new AntNet(0.4, 1, 15000, 0.1);
         algo.build(TestNetworks.nsfNodes(), TestNetworks.nsfEdges(), 0, 6);
         for (int t = 0; t < 1000; t++) {
             algo.tick();
@@ -49,7 +49,7 @@ class AddNodeTest {
 
     @Test
     void eacoSurvivesMidRunNodeAddition() {
-        final EACO algo = new EACO(0.4, 1, 15000, 100.0);
+        final EACO algo = new EACO(0.4, 1, 15000, 0.1);
         algo.build(TestNetworks.nsfNodes(), TestNetworks.nsfEdges(), 0, 6);
         for (int t = 0; t < 1000; t++) {
             algo.tick();

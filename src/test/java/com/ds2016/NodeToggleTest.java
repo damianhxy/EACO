@@ -40,12 +40,12 @@ class NodeToggleTest {
 
     @Test
     void antNetSurvivesNodeAndEdgeToggles() {
-        assertSurvivesToggle("AntNet", new AntNet(0.4, 1, 15000, 100.0));
+        assertSurvivesToggle("AntNet", new AntNet(0.4, 1, 15000, 0.1));
     }
 
     @Test
     void eacoSurvivesNodeAndEdgeToggles() {
-        assertSurvivesToggle("EACO", new EACO(0.4, 1, 15000, 100.0));
+        assertSurvivesToggle("EACO", new EACO(0.4, 1, 15000, 0.1));
     }
 
     @Test
