@@ -44,16 +44,36 @@ public class TableModel extends DefaultTableModel {
 
     @Override
     public void setValueAt(Object value, int row, int col) {
+        if (row >= mData.length || col >= mData[0].length) {
+            grow(row, col);
+        }
         mData[row][col] = String.valueOf(value);
         fireTableCellUpdated(row, col);
     }
 
+    private void grow(final int row, final int col) {
+        final int newRows = Math.max(mData.length, row + 1);
+        final int newCols = Math.max(mData[0].length, col + 1);
+        final String[][] copy = new String[newRows][newCols];
+        for (int r = 0; r < mData.length; r++) {
+            System.arraycopy(mData[r], 0, copy[r], 0, mData[r].length);
+        }
+        for (int r = 0; r < newRows; r++) {
+            for (int c = 0; c < newCols; c++) {
+                if (copy[r][c] == null) {
+                    copy[r][c] = r == 0 ? "FILLER" : "";
+                }
+            }
+        }
+        mData = copy;
+    }
+
     void resetData() {
-        for (int col = 0; col < Main.NUM_ARRAY_COLS; col++) {
+        for (int col = 0; col < mData[0].length; col++) {
             mData[0][col] = "FILLER";
         }
-        for (int row = 1; row < Main.NUM_ARRAY_ROWS; row++) {
-            for (int col = 0; col < Main.NUM_ARRAY_COLS; col++) {
+        for (int row = 1; row < mData.length; row++) {
+            for (int col = 0; col < mData[0].length; col++) {
                 mData[row][col] = "";
             }
         }

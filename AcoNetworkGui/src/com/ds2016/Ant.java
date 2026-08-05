@@ -70,14 +70,18 @@ class Ant extends Packet {
     }
 
     /**
-     * Calculate time taken for journey from
-     * current node to destination
+     * Consume the timing pair for the hop just retraced.
+     * <p>
+     * Each forward hop records one queueing delay and one transmission cost
+     * in arrival order, so the last two entries describe the hop from the
+     * previous node back to the destination. Calling this at every backward
+     * stop accumulates the forward trip time from the current node to the
+     * destination, which is the sub-path used for reinforcement (as in
+     * classic AntNet).
      */
     void updateTotalTime() {
         if (timings.size() < 2) return;
-        totalTime += timings.get(timings.size() - 1);
-        timings.remove(timings.size() - 1);
-        totalTime += timings.get(timings.size() - 1);
-        timings.remove(timings.size() - 1);
+        totalTime += timings.remove(timings.size() - 1);
+        totalTime += timings.remove(timings.size() - 1);
     }
 }

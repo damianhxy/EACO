@@ -85,6 +85,7 @@ public class AntNet implements AlgorithmBase {
      */
     public void addNode() {
         nodes.add(new Node_AntNet(nodes, adjMat, alpha));
+        nodes.get(nodes.size() - 1).init();
     }
 
     /**
@@ -256,8 +257,10 @@ public class AntNet implements AlgorithmBase {
         }
         if (Main.DEBUG_LATENCIES) {
             if (currentTime % Main.DEBUG_NUM_TICKS_PER_UPDATE == 0) {
-                double avgTripTime = (double) nodes.get(destination).tripTime / nodes.get(destination).numPackets;
-                System.out.println("avgTripTime: " + avgTripTime);
+                if (nodes.get(destination).numPackets > 0) {
+                    double avgTripTime = (double) nodes.get(destination).tripTime / nodes.get(destination).numPackets;
+                    System.out.println("avgTripTime: " + avgTripTime);
+                }
                 nodes.get(destination).tripTime = 0;
                 nodes.get(destination).numPackets = 0;
             }

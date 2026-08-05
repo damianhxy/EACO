@@ -85,6 +85,14 @@ public class EACO implements AlgorithmBase {
      */
     public void addNode() {
         nodes.add(new Node_EACO(nodes, edgeList, adjMat, alpha));
+        if (didInit) {
+            // Existing nodes' DSUs were built at the old node count; rebuild
+            // them at the new size without disturbing their pheromone tables.
+            for (Node_EACO node : nodes) {
+                node.initDSU();
+            }
+        }
+        nodes.get(nodes.size() - 1).init();
     }
 
     /**
@@ -253,8 +261,10 @@ public class EACO implements AlgorithmBase {
         }
         if (Main.DEBUG_LATENCIES) {
             if (currentTime % Main.DEBUG_NUM_TICKS_PER_UPDATE == 0) {
-                double avgTripTime = (double) nodes.get(destination).tripTime / nodes.get(destination).numPackets;
-                System.out.println("avgTripTime: " + avgTripTime);
+                if (nodes.get(destination).numPackets > 0) {
+                    double avgTripTime = (double) nodes.get(destination).tripTime / nodes.get(destination).numPackets;
+                    System.out.println("avgTripTime: " + avgTripTime);
+                }
                 nodes.get(destination).tripTime = 0;
                 nodes.get(destination).numPackets = 0;
             }

@@ -141,7 +141,6 @@ public class Gui implements GraphEventListener, NetworkEventListener {
             final int nodeId = Integer.parseInt(mToggleNodeField.getText());
             toggleNode(nodeId);
             mListener.onNodeToggled(nodeId);
-            mDataChart.toggleNode(mNodeList.get(nodeId).isOffline);
         });
 
         /*
@@ -189,10 +188,7 @@ public class Gui implements GraphEventListener, NetworkEventListener {
           Undergo one tick of the entire program (mGraph + algorithm)
          */
         mTickBtn = new JButton();
-        mTickBtn.addActionListener(actionEvent -> {
-            tick();
-            mListener.onTick();
-        });
+        mTickBtn.addActionListener(actionEvent -> mListener.onTick());
     }
 
     public void tick() {
@@ -213,6 +209,13 @@ public class Gui implements GraphEventListener, NetworkEventListener {
         colouriseNodes(mSourceNode, mDestinationNode);
         mListener.onUpdate(params);
         mDataChart.onUpdate(params);
+    }
+
+    /**
+     * Reset the charts. Reads the current algorithm's state, so this is
+     * invoked by Link under the simulation lock.
+     */
+    public void resetCharts() {
         mDataChart.resetCharts();
     }
 

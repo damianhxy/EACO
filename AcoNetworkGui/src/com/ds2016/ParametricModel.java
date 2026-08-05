@@ -42,6 +42,9 @@ public class ParametricModel {
      * @return Reinforcement Value
      */
     double getReinforcement(double T, int _N) {
+        if (_N == 0) {
+            return 0; // No neighbours: no reinforcement
+        }
         // Update Variables
         N = _N;
         if (μ == 0) {
@@ -49,7 +52,7 @@ public class ParametricModel {
         } else {
             double old_μ = μ;
             μ = μ + η * (T - μ);
-            σ2 = σ2 + η * ((T - old_μ) * (T - old_μ) - σ2);
+            σ2 = σ2 + η * ((T - old_μ) * (T - μ) - σ2);
         }
         if (++windowCount > w) {
             windowCount = 1;

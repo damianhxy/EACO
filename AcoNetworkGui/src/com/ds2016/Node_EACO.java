@@ -72,7 +72,7 @@ public class Node_EACO {
     /**
      * Initialize the UFDS structure
      */
-    private void initDSU() {
+    void initDSU() {
         DSU = new UFDS(nodes.size());
         for (SimpleEdge edge : edgeList) {
             if (edge.source == ID || edge.destination == ID) continue;
@@ -110,10 +110,11 @@ public class Node_EACO {
      * @param node2 Second node
      */
     void addEdge(int node1, int node2) {
-        if (node1 == ID || node2 == ID) return;
-        if (nodes.get(node1).isOffline || nodes.get(node2).isOffline) return;
-        // edge not offline
-        DSU.unionSet(node1, node2);
+        if (node1 != ID && node2 != ID) {
+            if (nodes.get(node1).isOffline || nodes.get(node2).isOffline) return;
+            // edge not offline
+            DSU.unionSet(node1, node2);
+        }
         update();
     }
 
@@ -237,6 +238,9 @@ public class Node_EACO {
         Double cur = pheromone.get(destination, neighbour);
         if (cur == null) cur = 0.;
         double maxChange = (TMAX - cur) / (1. - cur);
+        if (Double.isInfinite(maxChange) || Double.isNaN(maxChange)) {
+            maxChange = 0; // cur is already at (or beyond) the cap
+        }
         change = Math.min(change, maxChange);
         cur = cur * (1 - change) + change;
         pheromone.put(destination, neighbour, cur);
@@ -303,7 +307,6 @@ public class Node_EACO {
                     return; // Next node is gone
                 }
                 fastQ.putIfAbsent(nxt, new ArrayDeque<>());
-                ant.timings.add(getDepletionTime(nxt));
                 fastQ.get(nxt).add(ant);
             } else {
                 nxt = nextHop(ant);

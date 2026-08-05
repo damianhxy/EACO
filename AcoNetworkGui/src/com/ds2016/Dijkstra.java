@@ -37,6 +37,8 @@ public class Dijkstra {
         // Add neighbours
         HashMap<Integer, Edge> adj = adjMat.get(source);
         if (adj != null) for (Edge edge : adj.values()) {
+            if (edge.isOffline) continue;
+            if (nodes.get(edge.destination).isOffline) continue;
             D.set(edge.destination, edge.cost);
             P.get(edge.destination).add(edge.destination);
             PQ.add(new Pair<>(edge.destination, edge.cost));
@@ -75,10 +77,14 @@ public class Dijkstra {
      * Return the next hop for a given destination
      *
      * @param destination Destination node
-     * @return Neighbour node
+     * @return Neighbour node, or -1 if destination is unreachable
      */
     int next(int destination) {
-        CNT.set(destination, (CNT.get(destination) + 1) % P.get(destination).size());
-        return P.get(destination).get(CNT.get(destination));
+        final ArrayList<Integer> parents = P.get(destination);
+        if (parents.isEmpty()) {
+            return -1;
+        }
+        CNT.set(destination, (CNT.get(destination) + 1) % parents.size());
+        return parents.get(CNT.get(destination));
     }
 }

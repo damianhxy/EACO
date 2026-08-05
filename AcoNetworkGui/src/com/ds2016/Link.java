@@ -124,6 +124,15 @@ public class Link implements GuiEventListener {
         mParams.setNumTicks(params.getNumTicks());
 
         buildNewAlgorithm(params);
+
+        // The chart reset reads the algorithm's state, so run it under the
+        // lock to avoid racing the algorithm thread.
+        mMutex.lock();
+        try {
+            mGui.resetCharts();
+        } finally {
+            mMutex.unlock();
+        }
     }
 
     private void buildNewAlgorithm(final ParameterStorage params) {
@@ -165,7 +174,16 @@ public class Link implements GuiEventListener {
 
     @Override
     public void onTick() {
-        tick();
+        // Manual ticks only make sense while the simulation is paused;
+        // otherwise the algo thread is already ticking.
+        if (mStarted) return;
+        mMutex.lock();
+        try {
+            tick();
+            mGui.tick();
+        } finally {
+            mMutex.unlock();
+        }
     }
 
     @Override
