@@ -304,7 +304,6 @@ public class Node_EACO {
                     return; // Next node is gone
                 }
                 fastQ.putIfAbsent(nxt, new ArrayDeque<>());
-                ant.timings.add(getDepletionTime(nxt));
                 fastQ.get(nxt).add(ant);
             } else {
                 nxt = nextHop(ant);
