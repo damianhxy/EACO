@@ -22,11 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 class GraphAlgoTest {
 
-    private static Graph buildGraph(final int nodeCount, final int edgeCount) {
+    private static Graph buildGraph(final int edgeCount) {
         final Graph graph = new SingleGraph("test");
         graph.setStrict(false);
         graph.setAutoCreate(true);
-        for (int i = 0; i < nodeCount; i++) {
+        // A line of edgeCount+1 nodes: every edge endpoint always exists.
+        for (int i = 0; i <= edgeCount; i++) {
             graph.addNode(String.valueOf(i));
         }
         for (int e = 0; e < edgeCount; e++) {
@@ -54,17 +55,18 @@ class GraphAlgoTest {
     void computeDoesNotCrashWithDoubledEdgeStatus() {
         // getEdgeStatus() returns two entries per undirected edge; this used
         // to index graph edges past the last one and throw an NPE.
-        final Graph graph = buildGraph(6, 3);
+        final int edgeCount = 3;
+        final Graph graph = buildGraph(edgeCount);
         final ArrayList<Node_GUI> nodes = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i <= edgeCount; i++) {
             nodes.add(new Node_GUI());
         }
         final ArrayList<SimpleEdge> edges = new ArrayList<>();
-        for (int e = 0; e < 3; e++) {
+        for (int e = 0; e < edgeCount; e++) {
             edges.add(new SimpleEdge(e, e + 1, 5, 1));
         }
         final EACO algo = new EACO(0.4, 1, 15000, 100.0);
-        algo.build(nodes, edges, 0, 5);
+        algo.build(nodes, edges, 0, edgeCount);
         Link.sAlgorithm = algo;
 
         final GraphAlgo graphAlgo = new GraphAlgo(listener(graph));
