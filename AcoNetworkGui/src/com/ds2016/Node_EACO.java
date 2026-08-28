@@ -126,13 +126,13 @@ public class Node_EACO {
     void toggleEdge(int ID) {
         int src = edgeList.get(ID * 2).source;
         int dst = edgeList.get(ID * 2).destination;
-        if (src == this.ID || dst == this.ID) return;
-        if (edgeList.get(ID * 2).isOffline) {
-            initDSU();
-        } else {
-            if (nodes.get(src).isOffline || nodes.get(dst).isOffline) return;
-            // edge not offline
-            DSU.unionSet(src, dst);
+        if (src != this.ID && dst != this.ID) {
+            if (edgeList.get(ID * 2).isOffline) {
+                initDSU();
+            } else if (!nodes.get(src).isOffline && !nodes.get(dst).isOffline) {
+                // edge not offline
+                DSU.unionSet(src, dst);
+            }
         }
         update();
     }
