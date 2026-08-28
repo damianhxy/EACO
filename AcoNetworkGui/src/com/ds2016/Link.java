@@ -4,6 +4,8 @@ import com.ds2016.listeners.GuiEventListener;
 import com.ds2016.ui.Gui;
 import com.ds2016.ui.ParameterStorage;
 
+import javax.swing.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -23,7 +25,7 @@ public class Link implements GuiEventListener {
     private ParameterStorage mParams;
     private Thread mThread;
     private Runnable mRunnable;
-    private boolean mStarted;
+    private volatile boolean mStarted;
 
     Link() {
         mGui = new Gui(this);
@@ -36,22 +38,31 @@ public class Link implements GuiEventListener {
         mGui.init();
 
         mRunnable = () -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                mMutex.lock();
-                try {
-                    tick();
-                    mGui.tick();
-                    if (sAlgorithm.getCurrentTime() >= mParams.getNumTicks()
-                            && mParams.getNumTicks() > 0) {
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    boolean shouldStop;
+                    mMutex.lock();
+                    try {
+                        tick();
+                        shouldStop = sAlgorithm.getCurrentTime() >= mParams.getNumTicks()
+                                && mParams.getNumTicks() > 0;
+                    } finally {
+                        mMutex.unlock();
+                    }
+                    updateGuiAndWait(mGui::tick);
+                    if (shouldStop) {
                         stop();
                     }
-                } finally {
-                    mMutex.unlock();
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+            } finally {
+                // Do not let an old worker clear the state of a replacement.
+                if (Thread.currentThread() == mThread) {
+                    mStarted = false;
                 }
             }
         };
@@ -59,6 +70,47 @@ public class Link implements GuiEventListener {
 
     private void tick() {
         sThroughput = sAlgorithm.tick();
+    }
+
+    /**
+     * Run a GUI mutation on Swing's Event Dispatch Thread and wait for it to
+     * finish. Waiting prevents the simulation loop from flooding the event
+     * queue with chart updates when ticks are faster than rendering.
+     */
+    static void runOnEdtAndWait(final Runnable update) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            update.run();
+            return;
+        }
+        try {
+            SwingUtilities.invokeAndWait(update);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }
+            if (cause instanceof Error) {
+                throw (Error) cause;
+            }
+            throw new IllegalStateException("GUI update failed", cause);
+        }
+    }
+
+    /**
+     * Serialize GUI reads of the simulation with algorithm mutations while
+     * keeping all Swing and chart writes on the Event Dispatch Thread.
+     */
+    private void updateGuiAndWait(final Runnable update) {
+        runOnEdtAndWait(() -> {
+            mMutex.lock();
+            try {
+                update.run();
+            } finally {
+                mMutex.unlock();
+            }
+        });
     }
 
     private void addNode() {
@@ -103,8 +155,8 @@ public class Link implements GuiEventListener {
     private void start() {
         if (mStarted) return;
         mThread = new Thread(mRunnable, "ALGO_THREAD");
-        mThread.start();
         mStarted = true;
+        mThread.start();
     }
 
     private void stop() {
@@ -125,14 +177,8 @@ public class Link implements GuiEventListener {
 
         buildNewAlgorithm(params);
 
-        // The chart reset reads the algorithm's state, so run it under the
-        // lock to avoid racing the algorithm thread.
-        mMutex.lock();
-        try {
-            mGui.resetCharts();
-        } finally {
-            mMutex.unlock();
-        }
+        // The chart reset reads the algorithm's state and mutates Swing data.
+        updateGuiAndWait(mGui::resetCharts);
     }
 
     private void buildNewAlgorithm(final ParameterStorage params) {
@@ -180,10 +226,10 @@ public class Link implements GuiEventListener {
         mMutex.lock();
         try {
             tick();
-            mGui.tick();
         } finally {
             mMutex.unlock();
         }
+        updateGuiAndWait(mGui::tick);
     }
 
     @Override
