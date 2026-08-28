@@ -3,6 +3,8 @@ package com.ds2016;
 import com.ds2016.networks.Network;
 import com.ds2016.networks.NsfNetwork;
 
+import javax.swing.*;
+
 /**
  * We run on the assumption that 1 tick == 1 ms
  */
@@ -42,7 +44,9 @@ public class Main {
     public static final boolean DISPLAY_PHEROMONE = true;
 
     public static void main(String[] args) {
-        final Link link = new Link();
-        link.init();
+        SwingUtilities.invokeLater(() -> {
+            final Link link = new Link();
+            link.init();
+        });
     }
 }
