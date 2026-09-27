@@ -48,6 +48,22 @@ class AddNodeTest {
     }
 
     @Test
+    void antNetSurvivesTemporarilyIsolatedNodeAddition() {
+        final AntNet algo = new AntNet(0.4, 1, 15000, 0.1);
+        algo.build(TestNetworks.nsfNodes(), TestNetworks.nsfEdges(), 0, 6);
+
+        algo.addNode();
+
+        assertDoesNotThrow(() -> {
+            // Reach the first ant-generation interval while the new node has
+            // no adjacency row and therefore no route to the destination.
+            for (int t = 0; t < 100; t++) {
+                algo.tick();
+            }
+        });
+    }
+
+    @Test
     void eacoSurvivesMidRunNodeAddition() {
         final EACO algo = new EACO(0.4, 1, 15000, 0.1);
         algo.build(TestNetworks.nsfNodes(), TestNetworks.nsfEdges(), 0, 6);
@@ -58,6 +74,22 @@ class AddNodeTest {
         assertDoesNotThrow(() -> {
             algo.addNode();
             algo.addEdge(algo.nodes.size() - 1, 0, 5, 1);
+            for (int t = 0; t < 100; t++) {
+                algo.tick();
+            }
+        });
+    }
+
+    @Test
+    void eacoSurvivesTemporarilyIsolatedNodeAddition() {
+        final EACO algo = new EACO(0.4, 1, 15000, 0.1);
+        algo.build(TestNetworks.nsfNodes(), TestNetworks.nsfEdges(), 0, 6);
+
+        algo.addNode();
+
+        assertDoesNotThrow(() -> {
+            // Reach the first ant-generation interval while the new node has
+            // no adjacency row and therefore no route to the destination.
             for (int t = 0; t < 100; t++) {
                 algo.tick();
             }
