@@ -332,6 +332,9 @@ public class Gui implements GraphEventListener, NetworkEventListener {
         } else {
             backward.addAttribute("ui.hide");
         }
+
+        // Toggle SimpleEdge state, which Update rebuilds the algorithm from
+        mEdgeList.get(ID).toggle();
     }
 
     @Override
