@@ -91,6 +91,7 @@ public class Node_AntNet {
      * @param node Other Node
      */
     void addEdge(int node) {
+        if (nodes.get(node).isOffline) return;
         ++numNeighbours;
         for (int a = 0; a < nodes.size(); ++a) {
             if (a == ID) continue;

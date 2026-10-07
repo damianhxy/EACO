@@ -166,11 +166,12 @@ class DataChart implements GuiEventListener {
         if (!Main.DISPLAY_PHEROMONE) {
             return;
         }
-        final TableModel model = new TableModel(mModelList.size());
+        final int node = mModelList.size();
+        final TableModel model = new TableModel(node);
         mModelList.add(model);
         final JTable table = new JTable(model);
         table.getTableHeader().setReorderingAllowed(false);
-        mTabbedPane.add("Node " + mModelList.size(), new JScrollPane(table));
+        mTabbedPane.add("Node " + node, new JScrollPane(table));
     }
 
     @Override
