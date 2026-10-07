@@ -180,6 +180,10 @@ public class EACO implements AlgorithmBase {
         for (Integer neighbour : node.fastQ.keySet()) {
             ArrayDeque<Ant> Q = node.fastQ.get(neighbour);
             Edge_ACO edge = adjMat.get(node.ID, neighbour);
+            if (edge.isOffline || nodes.get(neighbour).isOffline) { // Neighbour or link is down: the queue is lost
+                Q.clear();
+                continue;
+            }
             bandwidth.put(neighbour, edge.bandwidth);
             while (!Q.isEmpty() && bandwidth.get(neighbour) > 0) {
                 edge.addAnt(Q.poll(), currentTime);
@@ -190,6 +194,10 @@ public class EACO implements AlgorithmBase {
         for (Integer neighbour : node.slowQ.keySet()) {
             ArrayDeque<Packet> Q = node.slowQ.get(neighbour);
             Edge_ACO edge = adjMat.get(node.ID, neighbour);
+            if (edge.isOffline || nodes.get(neighbour).isOffline) { // Neighbour or link is down: the queue is lost
+                Q.clear();
+                continue;
+            }
             bandwidth.putIfAbsent(neighbour, edge.bandwidth);
             while (!Q.isEmpty() && bandwidth.get(neighbour) > 0) {
                 edge.addPacket(Q.poll(), currentTime);

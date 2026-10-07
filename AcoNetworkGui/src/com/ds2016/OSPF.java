@@ -162,6 +162,10 @@ public class OSPF implements AlgorithmBase {
         for (Integer neighbour : node.Q.keySet()) {
             ArrayDeque<Packet> Q = node.Q.get(neighbour);
             Edge edge = adjMat.get(node.ID, neighbour);
+            if (edge.isOffline || nodes.get(neighbour).isOffline) { // Neighbour or link is down: the queue is lost
+                Q.clear();
+                continue;
+            }
             int bandwidth = edge.bandwidth;
             while (!Q.isEmpty() && bandwidth-- > 0) {
                 edge.addPacket(Q.poll(), currentTime);
