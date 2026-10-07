@@ -2,6 +2,7 @@ package com.ds2016;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Regression tests for pheromone corruption on saturated entries.
  * A degree-1 node initialises its only pheromone entries to exactly 1.0;
- * reinforcing such an entry used to produce NaN.
+ * reinforcing such an entry used to produce NaN. A row saturated at TMAX
+ * with the remaining entries at TMIN (within rounding) used to produce NaN
+ * when reinforced by a tiny amount.
  */
 class SaturatedEntryTest {
 
@@ -54,5 +57,45 @@ class SaturatedEntryTest {
         final EACO algo = new EACO(0.4, 1, 15000, 0.1);
         runTwoNodeNetwork(algo);
         assertAllFinite(algo.nodes.get(0).pheromone);
+    }
+
+    /**
+     * NSF node 9 for destination 6, as reached by ordinary simulation: the
+     * destination link saturated at TMAX and the other three entries a few
+     * ulps-worth of rounding either side of TMIN = 0.05 / 3.
+     */
+    private static void saturateRow(final HashMap2D<Integer, Integer, Double> pheromone) {
+        pheromone.put(6, 6, 0.95);
+        pheromone.put(6, 8, 0.016666666066666665);
+        pheromone.put(6, 11, 0.016666667766666667);
+        pheromone.put(6, 13, 0.016666666166666667);
+    }
+
+    private static void reinforce(final Object node, final int neighbour, final int destination,
+                                  final double change) throws Exception {
+        final Method update = node.getClass().getDeclaredMethod(
+                "updateHeuristic", int.class, int.class, double.class);
+        update.setAccessible(true);
+        update.invoke(node, neighbour, destination, change);
+    }
+
+    @Test
+    void antNetTinyReinforcementOfSaturatedRowStaysFinite() throws Exception {
+        final AntNet algo = new AntNet(0.4, 1, 15000, 0.1);
+        algo.build(TestNetworks.nsfNodes(), TestNetworks.nsfEdges(), 0, 6);
+        final Node_AntNet node = algo.nodes.get(9);
+        saturateRow(node.pheromone);
+        reinforce(node, 6, 6, 6.94e-8);
+        assertAllFinite(node.pheromone);
+    }
+
+    @Test
+    void eacoTinyReinforcementOfSaturatedRowStaysFinite() throws Exception {
+        final EACO algo = new EACO(0.4, 1, 15000, 0.1);
+        algo.build(TestNetworks.nsfNodes(), TestNetworks.nsfEdges(), 0, 6);
+        final Node_EACO node = algo.nodes.get(9);
+        saturateRow(node.pheromone);
+        reinforce(node, 6, 6, 6.94e-8);
+        assertAllFinite(node.pheromone);
     }
 }
