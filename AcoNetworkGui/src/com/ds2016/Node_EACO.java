@@ -126,13 +126,13 @@ public class Node_EACO {
     void toggleEdge(int ID) {
         int src = edgeList.get(ID * 2).source;
         int dst = edgeList.get(ID * 2).destination;
-        if (src == this.ID || dst == this.ID) return;
-        if (edgeList.get(ID * 2).isOffline) {
-            initDSU();
-        } else {
-            if (nodes.get(src).isOffline || nodes.get(dst).isOffline) return;
-            // edge not offline
-            DSU.unionSet(src, dst);
+        if (src != this.ID && dst != this.ID) {
+            if (edgeList.get(ID * 2).isOffline) {
+                initDSU();
+            } else if (!nodes.get(src).isOffline && !nodes.get(dst).isOffline) {
+                // edge not offline
+                DSU.unionSet(src, dst);
+            }
         }
         update();
     }
@@ -148,7 +148,11 @@ public class Node_EACO {
         double RNG = Math.random(), totVal = 0;
         double beta = 1 - alpha;
         ArrayList<Pair<Integer, Double>> neighbours = new ArrayList<>(); // Neighbour, Heuristic
-        for (Edge_ACO edge : adjMat.get(ID).values()) {
+        HashMap<Integer, Edge_ACO> adjacency = adjMat.get(ID);
+        if (adjacency == null) {
+            return null;
+        }
+        for (Edge_ACO edge : adjacency.values()) {
             if (edge.isOffline) continue; // Link is offline
             if (nodes.get(edge.destination).isOffline) continue; // Node is offline
             if (packet instanceof Ant && !((Ant) packet).canVisit(edge.destination)) continue; // Cycle detection
