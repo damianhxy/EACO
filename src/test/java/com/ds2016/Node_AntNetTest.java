@@ -65,4 +65,17 @@ class Node_AntNetTest {
         assertEquals(3, numNeighbours(node0));
         assertDoesNotThrow(algo::tick);
     }
+
+    @Test
+    void addingEdgeToOfflineNodeDoesNotAddViableNeighbour() throws Exception {
+        final AntNet algo = builtAntNet();
+        final Node_AntNet node0 = algo.nodes.get(0);
+
+        algo.addNode();
+        final int offlineNode = algo.nodes.size() - 1;
+        algo.toggleNode(offlineNode);
+        algo.addEdge(0, offlineNode, 5, 1);
+
+        assertEquals(3, numNeighbours(node0));
+    }
 }
