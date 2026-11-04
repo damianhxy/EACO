@@ -255,7 +255,7 @@ public class Node_EACO {
                 if (TMIN - new_val > EPS) {
                     owed += TMIN - new_val;
                     new_val = TMIN;
-                } else excess += new_val - TMIN;
+                } else if (new_val - TMIN > EPS) excess += new_val - TMIN; // only what the pay-off below draws from
                 if (TMIN - new_val > EPS) throw new IllegalStateException();
                 pheromone.put(destination, edge.destination, new_val);
             }
