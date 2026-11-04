@@ -1,6 +1,8 @@
 package com.ds2016.ui;
 
-import com.ds2016.EACO;
+import com.ds2016.Algorithm;
+import com.ds2016.AlgorithmBase;
+import com.ds2016.ForEachAlgorithm;
 import com.ds2016.Link;
 import com.ds2016.Node_GUI;
 import com.ds2016.SimpleEdge;
@@ -9,7 +11,6 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.stream.Sink;
-import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
@@ -51,8 +52,8 @@ class GraphAlgoTest {
         };
     }
 
-    @Test
-    void computeDoesNotCrashWithDoubledEdgeStatus() {
+    @ForEachAlgorithm
+    void computeDoesNotCrashWithDoubledEdgeStatus(final Algorithm algorithm) {
         // getEdgeStatus() returns two entries per undirected edge; this used
         // to index graph edges past the last one and throw an NPE.
         final int edgeCount = 3;
@@ -65,7 +66,7 @@ class GraphAlgoTest {
         for (int e = 0; e < edgeCount; e++) {
             edges.add(new SimpleEdge(e, e + 1, 5, 1));
         }
-        final EACO algo = new EACO(0.4, 1, 15000, 100.0);
+        final AlgorithmBase algo = algorithm.create(100.0);
         algo.build(nodes, edges, 0, edgeCount);
         Link.sAlgorithm = algo;
 

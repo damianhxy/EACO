@@ -37,28 +37,28 @@ class AntTimingTest {
         assertTrue(ant.timings.isEmpty());
     }
 
-    @Test
-    void forwardAntRecordsOnlyPerHopTimings() {
+    @ForEachAcoAlgorithm
+    void forwardAntRecordsOnlyPerHopTimings(final Algorithm algorithm) {
         // An ant travelling 0 -> 1 -> 2 records exactly one (queueing, cost)
         // pair per forward hop and nothing extra at the destination, so the
         // trip time is the forward (data-path) latency.
-        final AntNet algo = new AntNet(0.4, 1, 15000, 100.0);
-        final ArrayList<com.ds2016.Node_GUI> nodes = new ArrayList<>();
+        final AlgorithmBase algo = algorithm.create(100.0);
+        final ArrayList<Node_GUI> nodes = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            nodes.add(new com.ds2016.Node_GUI());
+            nodes.add(new Node_GUI());
         }
-        final ArrayList<com.ds2016.SimpleEdge> edges = new ArrayList<>();
-        edges.add(new com.ds2016.SimpleEdge(0, 1, 5, 1));
-        edges.add(new com.ds2016.SimpleEdge(1, 2, 7, 1));
+        final ArrayList<SimpleEdge> edges = new ArrayList<>();
+        edges.add(new SimpleEdge(0, 1, 5, 1));
+        edges.add(new SimpleEdge(1, 2, 7, 1));
         algo.build(nodes, edges, 0, 2);
         for (int t = 0; t < 100; t++) {
             algo.tick();
         }
 
         final Ant ant = new Ant(0, 2, 15000, algo.getCurrentTime());
-        algo.nodes.get(0).processAnt(ant);
-        algo.nodes.get(1).processAnt(ant);
-        algo.nodes.get(2).processAnt(ant);
+        algorithm.processAnt(algo, 0, ant);
+        algorithm.processAnt(algo, 1, ant);
+        algorithm.processAnt(algo, 2, ant);
 
         assertEquals(4, ant.timings.size());
     }

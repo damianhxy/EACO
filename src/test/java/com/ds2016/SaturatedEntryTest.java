@@ -1,7 +1,5 @@
 package com.ds2016;
 
-import org.junit.jupiter.api.Test;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,18 +43,11 @@ class SaturatedEntryTest {
         }
     }
 
-    @Test
-    void antNetKeepsDegreeOnePheromoneFinite() {
-        final AntNet algo = new AntNet(0.4, 1, 15000, 0.1);
+    @ForEachAcoAlgorithm
+    void keepsDegreeOnePheromoneFinite(final Algorithm algorithm) {
+        final AlgorithmBase algo = algorithm.create();
         runTwoNodeNetwork(algo);
-        assertAllFinite(algo.nodes.get(0).pheromone);
-    }
-
-    @Test
-    void eacoKeepsDegreeOnePheromoneFinite() {
-        final EACO algo = new EACO(0.4, 1, 15000, 0.1);
-        runTwoNodeNetwork(algo);
-        assertAllFinite(algo.nodes.get(0).pheromone);
+        assertAllFinite(algorithm.pheromone(algo, 0));
     }
 
     /**
@@ -79,23 +70,12 @@ class SaturatedEntryTest {
         update.invoke(node, neighbour, destination, change);
     }
 
-    @Test
-    void antNetTinyReinforcementOfSaturatedRowStaysFinite() throws Exception {
-        final AntNet algo = new AntNet(0.4, 1, 15000, 0.1);
+    @ForEachAcoAlgorithm
+    void tinyReinforcementOfSaturatedRowStaysFinite(final Algorithm algorithm) throws Exception {
+        final AlgorithmBase algo = algorithm.create();
         algo.build(TestNetworks.nsfNodes(), TestNetworks.nsfEdges(), 0, 6);
-        final Node_AntNet node = algo.nodes.get(9);
-        saturateRow(node.pheromone);
-        reinforce(node, 6, 6, 6.94e-8);
-        assertAllFinite(node.pheromone);
-    }
-
-    @Test
-    void eacoTinyReinforcementOfSaturatedRowStaysFinite() throws Exception {
-        final EACO algo = new EACO(0.4, 1, 15000, 0.1);
-        algo.build(TestNetworks.nsfNodes(), TestNetworks.nsfEdges(), 0, 6);
-        final Node_EACO node = algo.nodes.get(9);
-        saturateRow(node.pheromone);
-        reinforce(node, 6, 6, 6.94e-8);
-        assertAllFinite(node.pheromone);
+        saturateRow(algorithm.pheromone(algo, 9));
+        reinforce(algorithm.node(algo, 9), 6, 6, 6.94e-8);
+        assertAllFinite(algorithm.pheromone(algo, 9));
     }
 }

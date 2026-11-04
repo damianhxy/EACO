@@ -1,7 +1,5 @@
 package com.ds2016;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -21,7 +19,9 @@ class NodeToggleTest {
         }
     }
 
-    private static void assertSurvivesToggle(final String name, final AlgorithmBase algo) {
+    @ForEachAlgorithm
+    void survivesNodeAndEdgeToggles(final Algorithm algorithm) {
+        final AlgorithmBase algo = algorithm.create();
         algo.build(NODES, EDGES, 0, 6);
         runTicks(algo, 1000);
         // Edge 0 is (0,1); node 1 is neither source (0) nor destination (6).
@@ -29,27 +29,12 @@ class NodeToggleTest {
             algo.toggleNode(1);
             algo.toggleEdge(0);
             runTicks(algo, 100);
-        }, name + " crashed toggling node then adjacent edge offline");
+        }, "crashed toggling node then adjacent edge offline");
         // Restore and try the opposite order.
         assertDoesNotThrow(() -> {
             algo.toggleEdge(0);
             algo.toggleNode(1);
             runTicks(algo, 100);
-        }, name + " crashed toggling edge then adjacent node offline");
-    }
-
-    @Test
-    void antNetSurvivesNodeAndEdgeToggles() {
-        assertSurvivesToggle("AntNet", new AntNet(0.4, 1, 15000, 0.1));
-    }
-
-    @Test
-    void eacoSurvivesNodeAndEdgeToggles() {
-        assertSurvivesToggle("EACO", new EACO(0.4, 1, 15000, 0.1));
-    }
-
-    @Test
-    void ospfSurvivesNodeAndEdgeToggles() {
-        assertSurvivesToggle("OSPF", new OSPF(15000, 1));
+        }, "crashed toggling edge then adjacent node offline");
     }
 }
