@@ -26,7 +26,7 @@ public class SimpleEdge {
     /**
      * Toggle isOffline
      */
-    void toggle() {
+    public void toggle() {
         isOffline ^= true;
     }
 }
